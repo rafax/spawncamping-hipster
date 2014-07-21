@@ -87,13 +87,14 @@ public class MyHashMap<K, V> implements Map<K, V> {
     @Override
     public void putAll(Map<? extends K, ? extends V> map) {
         for (Entry<? extends K, ? extends V> entry : map.entrySet()) {
-            put(entry.getKey(),entry.getValue());
+            put(entry.getKey(), entry.getValue());
         }
     }
 
     @Override
     public void clear() {
         buckets = new ArrayList<>();
+        size = 0;
     }
 
     @Override

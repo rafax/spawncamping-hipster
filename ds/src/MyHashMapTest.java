@@ -17,8 +17,6 @@ public class MyHashMapTest {
             assertTrue(map.containsValue(i + 100));
             assertEquals((long)map.get(i), i + 100);
         }
-
-
     }
 
     @Test

@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by rafal on 21/07/14.
@@ -8,14 +9,16 @@ public class MyHashMap<K, V> implements Map<K, V> {
 
     private int size;
     private float loadFactor = 0.75f;
+    private int initialCapacity = 10;
 
     private List<List<MyEntry<K, V>>> buckets = new ArrayList<>();
 
     public MyHashMap() {
-        buckets.add(new ArrayList<MyEntry<K, V>>());
-        buckets.add(new ArrayList<MyEntry<K, V>>());
+        buckets.clear();
+        for (int i = 0; i < initialCapacity; i++) {
+            buckets.add(new ArrayList<>());
+        }
     }
-
 
     @Override
     public int size() {
@@ -93,36 +96,53 @@ public class MyHashMap<K, V> implements Map<K, V> {
 
     @Override
     public void clear() {
-        buckets = new ArrayList<>();
+        buckets.clear();
         size = 0;
     }
 
     @Override
     public Set<K> keySet() {
-        return null;
+        return buckets.stream().flatMap((bucket) -> bucket.stream()).map(MyEntry::getKey).collect(Collectors.toSet());
     }
 
     @Override
     public Collection<V> values() {
-        return null;
+        return buckets.stream().flatMap((bucket) -> bucket.stream()).map(MyEntry::getValue).collect(Collectors.toList());
     }
 
     @Override
     public Set<Entry<K, V>> entrySet() {
-        return null;
+        return buckets.stream().flatMap((bucket) -> bucket.stream()).collect(Collectors.toSet());
     }
 
     private int indexFor(Object key) {
         return key.hashCode() % buckets.size();
     }
 
-    private class MyEntry<K, V> {
-        public final K key;
-        public final V value;
+    private class MyEntry<K, V> implements Entry<K, V> {
+        private  K key;
+        private  V value;
 
         public MyEntry(K key, V value) {
             this.key = key;
             this.value = value;
+        }
+
+        @Override
+        public K getKey() {
+            return key;
+        }
+
+        @Override
+        public V getValue() {
+            return value;
+        }
+
+        @Override
+        public V setValue(V value) {
+            V oldValue = this.value;
+            this.value= value;
+            return oldValue;
         }
     }
 }

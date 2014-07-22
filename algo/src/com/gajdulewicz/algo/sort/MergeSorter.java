@@ -32,12 +32,11 @@ public class MergeSorter<T extends Comparable> implements Sorter<T> {
         return mergeSort(input);
     }
 
-    @SuppressWarnings("unchecked")
     List<T> merge(List<T> left, List<T> right) {
         List<T> result = new LinkedList<>();
         while (!left.isEmpty() || !right.isEmpty()) {
             if (!left.isEmpty() && !right.isEmpty()) {
-                if (left.get(0).compareTo(right.get(0)) < 0) {
+                if (((Comparable) left.get(0)).compareTo(right.get(0)) < 0) {
                     result.add(left.remove(0));
                 } else {
                     result.add(right.remove(0));

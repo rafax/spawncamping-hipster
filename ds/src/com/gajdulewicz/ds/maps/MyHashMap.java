@@ -1,3 +1,5 @@
+package com.gajdulewicz.ds.maps;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,7 +37,7 @@ public class MyHashMap<K, V> implements Map<K, V> {
         final List<MyEntry<K, V>> bucket = buckets.get(indexFor(key));
         for (int i = 0; i < bucket.size(); i++) {
             MyEntry<K, V> entry = bucket.get(i);
-            if (entry.key.equals(key)) {
+            if (entry.getKey().equals(key)) {
                 return true;
             }
         }
@@ -46,7 +48,7 @@ public class MyHashMap<K, V> implements Map<K, V> {
     public boolean containsValue(Object value) {
         for (List<MyEntry<K, V>> bucket : buckets) {
             for (MyEntry<K, V> entry : bucket) {
-                if (entry.value.equals(value)) {
+                if (entry.getValue().equals(value)) {
                     return true;
                 }
             }
@@ -59,8 +61,8 @@ public class MyHashMap<K, V> implements Map<K, V> {
         final List<MyEntry<K, V>> bucket = buckets.get(indexFor(key));
         for (int i = 0; i < bucket.size(); i++) {
             MyEntry<K, V> entry = bucket.get(i);
-            if (entry.key.equals(key)) {
-                return entry.value;
+            if (entry.getKey().equals(key)) {
+                return entry.getValue();
             }
         }
         return null;
@@ -71,8 +73,8 @@ public class MyHashMap<K, V> implements Map<K, V> {
         final List<MyEntry<K, V>> bucket = buckets.get(indexFor(key));
         for (int i = 0; i < bucket.size(); i++) {
             MyEntry<K, V> entry = bucket.get(i);
-            if (bucket.get(i).key.equals(key)) {
-                V oldValue = entry.value;
+            if (bucket.get(i).getKey().equals(key)) {
+                V oldValue = entry.getValue();
                 bucket.add(i, new MyEntry<K, V>(key, value));
                 return oldValue;
             }
@@ -119,30 +121,4 @@ public class MyHashMap<K, V> implements Map<K, V> {
         return key.hashCode() % buckets.size();
     }
 
-    private class MyEntry<K, V> implements Entry<K, V> {
-        private  K key;
-        private  V value;
-
-        public MyEntry(K key, V value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        @Override
-        public K getKey() {
-            return key;
-        }
-
-        @Override
-        public V getValue() {
-            return value;
-        }
-
-        @Override
-        public V setValue(V value) {
-            V oldValue = this.value;
-            this.value= value;
-            return oldValue;
-        }
-    }
 }

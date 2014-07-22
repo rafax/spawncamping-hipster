@@ -1,3 +1,5 @@
+package com.gajdulewicz.ds.maps;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

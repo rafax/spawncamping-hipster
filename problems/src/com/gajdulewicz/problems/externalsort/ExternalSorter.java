@@ -1,15 +1,15 @@
 package com.gajdulewicz.problems.externalsort;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Created by rafal on 24/07/14.
@@ -25,9 +25,8 @@ public class ExternalSorter {
     }
 
     public static void main(String[] args) throws IOException {
-        //new ExternalSorter(327680).sort("/Users/rafal/dev/spawncamping-hipster/problems/src/com/gajdulewicz/problems/externalsort/input.txt", "output.txt");
-        new ExternalSorter(10).sort("/Users/rafal/dev/spawncamping-hipster/input-small.txt", "output.txt");
-
+        new ExternalSorter(327680).sort("/Users/rafal/dev/spawncamping-hipster/problems/src/com/gajdulewicz/problems/externalsort/input.txt", "output.txt");
+        //new ExternalSorter(21).sort("/Users/rafal/dev/spawncamping-hipster/input-small.txt", "output.txt");
     }
 
     public void sort(String input, String output) throws IOException {
@@ -40,53 +39,42 @@ public class ExternalSorter {
     private void merge(List<String> tempFileNames, String output) throws IOException {
         Arrays.fill(toSort, null);
         int maxChunkSize = maxIntCount / tempFileNames.size();
-        List<Integer> chunkPositions = tempFileNames.stream().map(x -> 0).collect(Collectors.toList());
-        List<BufferedReader> readers = getChunkReaders(tempFileNames);
-        for (int i = 0; i < tempFileNames.size(); i++) {
-            readNextChunk(maxChunkSize, readers, i);
-        }
-        BufferedWriter resultWriter = Files.newBufferedWriter(Paths.get(output), StandardOpenOption.CREATE_NEW);
-        while (chunkPositions.stream().allMatch(x -> x != -1)) {
-            int minChunkIndex = indexOfMin(chunkPositions.stream().map(pos -> toSort[pos]));
-            int minValueIndex = chunkPositions.get(minChunkIndex);
-            resultWriter.write(toSort[minValueIndex] + "\n");
-            chunkPositions.add(minChunkIndex, minValueIndex + 1);
-            if (minValueIndex != 0 && minValueIndex % maxChunkSize == 0) {
-                readNextChunk(maxChunkSize, readers, minChunkIndex);
+        try (BufferedWriter resultWriter = Files.newBufferedWriter(Paths.get(output), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+            List<Chunk> chunks = getChunks(tempFileNames, maxChunkSize);
+            while (chunks.stream().anyMatch(c -> c.hasMore())) {
+                int minIndex = indexOfMin(chunks.stream().filter(c -> c.hasMore()).map(c -> c.peek()).iterator());
+                String nextLine = chunks.get(minIndex).take();
+                if (!chunks.get(minIndex).hasMore()) {
+                    chunks.remove(minIndex);
+                }
+                resultWriter.write(nextLine + "\n");
             }
         }
+
     }
 
-    private int indexOfMin(Stream<String> map) {
-        Iterator<String> iter = map.iterator();
-        int minInd = 0, i = 0;
-        String minVal = iter.next();
-        while (iter.hasNext()) {
-            i++;
-            String cand = iter.next();
-            if (cand.compareTo(minVal) == -1) {
-                minVal = cand;
+    private List<Chunk> getChunks(List<String> tempFileNames, int maxChunkSize) throws IOException {
+        int start = 0;
+        List<Chunk> result = new ArrayList<>();
+        for (String fileName : tempFileNames) {
+            result.add(new Chunk(Files.newBufferedReader(Paths.get(fileName)), start, start + maxChunkSize));
+            start += maxChunkSize;
+        }
+        return result;
+    }
+
+    private int indexOfMin(Iterator<String> iterator) {
+        List<String> values = StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false).collect(Collectors.toList());
+        int minInd = 0;
+        String minVal = values.get(0);
+        for (int i = 1; i < values.size(); i++) {
+            String candidate = values.get(i);
+            if (candidate.compareTo(minVal) < 0) {
+                minVal = candidate;
                 minInd = i;
             }
         }
         return minInd;
-    }
-
-    private void readNextChunk(int maxChunkSize, List<BufferedReader> readers, int i) throws IOException {
-        BufferedReader r = readers.get(i);
-        int pos = 0;
-        String line = r.readLine();
-        for (; pos < maxChunkSize && line != null; pos++) {
-            toSort[i * maxChunkSize + pos] = r.readLine();
-        }
-    }
-
-    private List<BufferedReader> getChunkReaders(List<String> tempFileNames) throws IOException {
-        List<BufferedReader> result = new ArrayList<>();
-        for (String fileName : tempFileNames) {
-            result.add(Files.newBufferedReader(Paths.get(fileName)));
-        }
-        return result;
     }
 
     private void deleteTempFiles(List<String> tempFileNames) {
@@ -101,29 +89,30 @@ public class ExternalSorter {
 
     private List<String> sortChunks(String input) throws IOException {
         List<String> tempFileNames = new ArrayList<>();
-        try (FileReader fr = new FileReader(input)) {
-            try (BufferedReader reader = new BufferedReader(fr)) {
-                int fileIndex = 0;
-                boolean allRead = false;
-                while (!allRead) {
-                    int i = 0;
-                    String line = null;
-                    for (; i < maxIntCount && null != (line = reader.readLine()); i++) {
-                        toSort[i] = line;
-                    }
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get(input))) {
+            int fileIndex = 0;
+            boolean allRead = false;
+            while (!allRead) {
+                int i = 0;
+                String line = null;
+                for (; i < maxIntCount && null != (line = reader.readLine()); i++) {
+                    toSort[i] = line;
+                }
+                allRead = line == null;
+                if (i > 0) {
                     Arrays.sort(toSort, 0, i, (o1, o2) -> o1 == null ? o2 == null ? 0 : 1 : o1.compareTo(o2));
                     String fileName = fileIndex++ + ".tmp";
                     tempFileNames.add(fileName);
                     writeToFile(fileName, i);
-                    allRead = line == null;
                 }
             }
         }
+
         return tempFileNames;
     }
 
     private void writeToFile(String fileName, int upTo) throws IOException {
-        try (Writer w = Files.newBufferedWriter(Paths.get(fileName), StandardOpenOption.CREATE_NEW)) {
+        try (Writer w = Files.newBufferedWriter(Paths.get(fileName), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
             for (int i = 0; i < upTo; i++) {
                 w.write(toSort[i] + "\n");
             }
@@ -133,12 +122,11 @@ public class ExternalSorter {
     private class Chunk {
         private final BufferedReader reader;
         private final int from;
-        private final int to;
+        private int to;
 
         private int current;
 
         private boolean readerEmpty = false;
-        private int lastAvailableIndex;
 
         private Chunk(BufferedReader reader, int from, int to) {
             this.reader = reader;
@@ -148,16 +136,22 @@ public class ExternalSorter {
         }
 
         public boolean hasMore() {
-            return !readerEmpty || current < lastAvailableIndex;
+            return !readerEmpty || current < to;
         }
 
         public String peek() {
+            if (!hasMore()) {
+                throw new RuntimeException("Chunk is empty!");
+            }
             return toSort[current];
         }
 
         public String take() {
+            if (!hasMore()) {
+                throw new RuntimeException("Chunk is empty!");
+            }
             String res = toSort[current++];
-            if (current == to) {
+            if (current == to && !readerEmpty) {
                 load();
             }
             return res;
@@ -169,8 +163,10 @@ public class ExternalSorter {
                 try {
                     String line = reader.readLine();
                     if (line == null) {
+                        reader.close();
                         readerEmpty = true;
-                        lastAvailableIndex = from + i - 1;
+                        to = from + i;
+
                         return;
                     }
                     toSort[from + i] = line;
@@ -178,7 +174,6 @@ public class ExternalSorter {
                     e.printStackTrace();
                 }
             }
-
         }
     }
 }

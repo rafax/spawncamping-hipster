@@ -15,23 +15,31 @@ import java.util.stream.Stream;
  * Created by rafal on 24/07/14.
  */
 public class ExternalSorter {
-    private static final int MAX_INT_COUNT = 327680;
+    private final int maxIntCount;
 
-    String[] toSort = new String[MAX_INT_COUNT];
+    private final String[] toSort;
 
-    public static void main(String[] args) throws IOException {
-        new ExternalSorter().writeSortedToOutput("/Users/rafal/dev/spawncamping-hipster/problems/src/com/gajdulewicz/problems/externalsort/input.txt", "output.txt");
+    public ExternalSorter(int maxElemCount) {
+        this.maxIntCount = maxElemCount;
+        toSort = new String[maxIntCount];
     }
 
-    public void writeSortedToOutput(String input, String output) throws IOException {
+    public static void main(String[] args) throws IOException {
+        //new ExternalSorter(327680).sort("/Users/rafal/dev/spawncamping-hipster/problems/src/com/gajdulewicz/problems/externalsort/input.txt", "output.txt");
+        new ExternalSorter(10).sort("/Users/rafal/dev/spawncamping-hipster/input-small.txt", "output.txt");
+
+    }
+
+    public void sort(String input, String output) throws IOException {
         List<String> tempFileNames = sortChunks(input);
+        System.out.println("wrote " + tempFileNames.size() + " sorted chunks");
         merge(tempFileNames, output);
         deleteTempFiles(tempFileNames);
     }
 
     private void merge(List<String> tempFileNames, String output) throws IOException {
         Arrays.fill(toSort, null);
-        int maxChunkSize = MAX_INT_COUNT / tempFileNames.size();
+        int maxChunkSize = maxIntCount / tempFileNames.size();
         List<Integer> chunkPositions = tempFileNames.stream().map(x -> 0).collect(Collectors.toList());
         List<BufferedReader> readers = getChunkReaders(tempFileNames);
         for (int i = 0; i < tempFileNames.size(); i++) {
@@ -100,7 +108,7 @@ public class ExternalSorter {
                 while (!allRead) {
                     int i = 0;
                     String line = null;
-                    for (; i < MAX_INT_COUNT && null != (line = reader.readLine()); i++) {
+                    for (; i < maxIntCount && null != (line = reader.readLine()); i++) {
                         toSort[i] = line;
                     }
                     Arrays.sort(toSort, 0, i, (o1, o2) -> o1 == null ? o2 == null ? 0 : 1 : o1.compareTo(o2));
@@ -119,6 +127,58 @@ public class ExternalSorter {
             for (int i = 0; i < upTo; i++) {
                 w.write(toSort[i] + "\n");
             }
+        }
+    }
+
+    private class Chunk {
+        private final BufferedReader reader;
+        private final int from;
+        private final int to;
+
+        private int current;
+
+        private boolean readerEmpty = false;
+        private int lastAvailableIndex;
+
+        private Chunk(BufferedReader reader, int from, int to) {
+            this.reader = reader;
+            this.from = from;
+            this.to = to;
+            load();
+        }
+
+        public boolean hasMore() {
+            return !readerEmpty || current < lastAvailableIndex;
+        }
+
+        public String peek() {
+            return toSort[current];
+        }
+
+        public String take() {
+            String res = toSort[current++];
+            if (current == to) {
+                load();
+            }
+            return res;
+        }
+
+        private void load() {
+            this.current = from;
+            for (int i = 0; i < (to - from); i++) {
+                try {
+                    String line = reader.readLine();
+                    if (line == null) {
+                        readerEmpty = true;
+                        lastAvailableIndex = from + i - 1;
+                        return;
+                    }
+                    toSort[from + i] = line;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
         }
     }
 }

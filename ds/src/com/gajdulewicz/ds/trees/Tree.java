@@ -1,25 +1,26 @@
 package com.gajdulewicz.ds.trees;
 
-import java.util.Iterator;
+import java.util.stream.Stream;
 
 /**
  * Created by rafal on 27/07/14.
  */
-public interface Tree<K, V>{
-        void insert(K key,V value);
+public interface Tree<K, V> {
+    void insert(K key, V value);
 
-        V delete(K key);
+    V delete(K key);
 
-        V find(K key);
+    V find(K key);
 
-        int size();
+    int size();
 
-        Iterator<K> keySet();
+    Stream<K> keySet();
 
-        Iterator<V> inOrder();
+    Stream<V> inOrder();
 
-        Iterator<V>preOrder();
+    Stream<V> preOrder();
 
-        Iterator<V>postOrder();
+    Stream<V> postOrder();
 
-        }
+
+}

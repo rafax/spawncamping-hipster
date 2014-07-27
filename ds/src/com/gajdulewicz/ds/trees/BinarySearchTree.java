@@ -1,8 +1,11 @@
 package com.gajdulewicz.ds.trees;
 
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.stream.Stream;
+
+import static java.util.stream.Stream.concat;
+import static java.util.stream.Stream.of;
 
 /**
  * Created by rafal on 27/07/14.
@@ -70,23 +73,50 @@ public class BinarySearchTree<K, V> implements Tree<K, V> {
     }
 
     @Override
-    public Iterator<K> keySet() {
-        return null;
+    public Stream<K> keySet() {
+        return inOrderStream(root).map(e -> e.getKey());
     }
 
     @Override
-    public Iterator<V> inOrder() {
-        return null;
+    public Stream<V> inOrder() {
+        return inOrderStream(root).map(e -> e.getValue());
     }
 
     @Override
-    public Iterator<V> preOrder() {
-        return null;
+    public Stream<V> preOrder() {
+        return preOrderStream(root).map(e -> e.getValue());
+    }
+
+    private Stream<Entry<K, V>> preOrderStream(Entry<K, V> current) {
+        if (current == null) {
+            return Stream.empty();
+        }
+        return concat(
+                concat(of(current), preOrderStream(current.getLeftChild())),
+                preOrderStream(current.getRightChild()));
     }
 
     @Override
-    public Iterator<V> postOrder() {
-        return null;
+    public Stream<V> postOrder() {
+        return postOrderStream(root).map(e -> e.getValue());
+    }
+
+    private Stream<Entry<K, V>> postOrderStream(Entry<K, V> current) {
+        if (current == null) {
+            return Stream.empty();
+        }
+        return concat(
+                concat(inOrderStream(current.getLeftChild()), inOrderStream(current.getRightChild())),
+                of(current));
+    }
+
+    private Stream<Entry<K, V>> inOrderStream(Entry<K, V> current) {
+        if (current == null) {
+            return Stream.empty();
+        }
+        return concat(
+                concat(inOrderStream(current.getLeftChild()), of(current)),
+                inOrderStream(current.getRightChild()));
     }
 
     private void insertRecursive(Entry<K, V> parent, K key, V value) {

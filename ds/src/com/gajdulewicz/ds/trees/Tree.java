@@ -14,6 +14,8 @@ public interface Tree<K, V>{
 
         int size();
 
+        Iterator<K> keySet();
+
         Iterator<V> inOrder();
 
         Iterator<V>preOrder();

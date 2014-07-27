@@ -31,6 +31,7 @@ public class BinarySearchTree<K, V> implements Tree<K, V> {
     public void insert(K key, V value) {
         if (root == null) {
             root = new Entry<>(key, value);
+            size++;
         } else {
             insertRecursive(root, key, value);
         }
@@ -46,12 +47,31 @@ public class BinarySearchTree<K, V> implements Tree<K, V> {
 
     @Override
     public V find(K key) {
+        if (root == null) {
+            return null;
+        }
+        Entry<K, V> current = root;
+        while (current != null) {
+            int cmp = comparator.compare(current.getKey(), key);
+            if (cmp == 0) {
+                return current.getValue();
+            } else if (cmp < 0) {
+                current = current.getRightChild();
+            } else {
+                current = current.getLeftChild();
+            }
+        }
         return null;
     }
 
     @Override
     public int size() {
-        return 0;
+        return size;
+    }
+
+    @Override
+    public Iterator<K> keySet() {
+        return null;
     }
 
     @Override
@@ -78,6 +98,7 @@ public class BinarySearchTree<K, V> implements Tree<K, V> {
                 insertRecursive(parent.getLeftChild(), key, value);
             } else {
                 Entry<K, V> entry = new Entry<>(key, value);
+                size++;
                 parent.setLeftChild(entry);
                 entry.setParent(parent);
             }
@@ -86,6 +107,7 @@ public class BinarySearchTree<K, V> implements Tree<K, V> {
                 insertRecursive(parent.getRightChild(), key, value);
             } else {
                 Entry<K, V> entry = new Entry<>(key, value);
+                size++;
                 parent.setRightChild(entry);
                 entry.setParent(parent);
             }
@@ -94,43 +116,59 @@ public class BinarySearchTree<K, V> implements Tree<K, V> {
     }
 
     private V deleteRecursive(Entry<K, V> node, K key) {
+        if (node == null) {
+            throw new NoSuchElementException("Node with given key not found: " + key);
+        }
         int cmp = comparator.compare(node.getKey(), key);
         if (cmp == 0) {
             return deleteNode(node);
         } else if (cmp > 0) {
-            return deleteRecursive(node.getRightChild(), key);
-        } else {
             return deleteRecursive(node.getLeftChild(), key);
+        } else {
+            return deleteRecursive(node.getRightChild(), key);
         }
     }
 
     private V deleteNode(Entry<K, V> node) {
         V result = node.getValue();
         if (node.getLeftChild() == null && node.getRightChild() == null) {
-            if (node.getParent().getRightChild() == node) {
-                node.getParent().setRightChild(null);
+            if (node.getParent() == null) {
+                root = null;
             } else {
-                node.getParent().setLeftChild(null);
+                if (node.getParent().getRightChild() == node) {
+                    node.getParent().setRightChild(null);
+                } else {
+                    node.getParent().setLeftChild(null);
+                }
             }
         } else if (node.getLeftChild() != null && node.getRightChild() == null) {
             node.getLeftChild().setParent(node.getParent());
-            if (node.getParent().getRightChild() == node) {
-                node.getParent().setRightChild(node.getLeftChild());
+            if (node.getParent() == null) {
+                root = node.getLeftChild();
             } else {
-                node.getParent().setLeftChild(node.getLeftChild());
+                if (node.getParent().getRightChild() == node) {
+                    node.getParent().setRightChild(node.getLeftChild());
+                } else {
+                    node.getParent().setLeftChild(node.getLeftChild());
+                }
             }
         } else if (node.getLeftChild() == null && node.getRightChild() != null) {
             node.getRightChild().setParent(node.getParent());
-            if (node.getParent().getRightChild() == node) {
-                node.getParent().setRightChild(node.getRightChild());
+            if (node.getParent() == null) {
+                root = node.getRightChild();
             } else {
-                node.getParent().setLeftChild(node.getRightChild());
+                if (node.getParent().getRightChild() == node) {
+                    node.getParent().setRightChild(node.getRightChild());
+                } else {
+                    node.getParent().setLeftChild(node.getRightChild());
+                }
             }
         } else {// two children
             Entry<K, V> smallestSuccessor = minChild(node.getRightChild());
             node.setValue(smallestSuccessor.getValue());
             deleteNode(smallestSuccessor);
         }
+        size--;
         return result;
     }
 

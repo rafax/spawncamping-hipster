@@ -22,29 +22,11 @@ public class MergeSorterTest {
             list.add(r.nextInt(TEST_SIZE));
         }
         List<Integer> result;
-        try (Timer t = new Timer("Merge sorter")) {
-            result = new MergeSorter<Integer>().sort(list);
-        }
-        try (Timer t = new Timer("Collections.sort")) {
-            Collections.sort(list);
-        }
+        result = new MergeSorter<Integer>().sort(list);
+
+        Collections.sort(list);
+
         assertEquals(list, result);
     }
 
-    class Timer implements AutoCloseable {
-
-        private String message;
-        private long startTime;
-
-        Timer(String message) {
-            this.message = message;
-            startTime = System.currentTimeMillis();
-        }
-
-        @Override
-        public void close() throws Exception {
-            long end = System.currentTimeMillis();
-            System.out.println(String.format("%s took %s ms", message, end - startTime));
-        }
-    }
 }

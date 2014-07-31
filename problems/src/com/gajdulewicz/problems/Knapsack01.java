@@ -22,6 +22,8 @@ public class Knapsack01 {
     }
 
     private int calcValueForLimit(int w, ArrayList<Integer> values, ArrayList<Integer> costs) {
+        values = new ArrayList<>(values);
+        costs = new ArrayList<>(costs);
         if (w <= 0) {
             return 0;
         }
@@ -47,7 +49,9 @@ public class Knapsack01 {
         return maxValueForWeight.get(w);
     }
 
+    static List<Integer> votes = Arrays.asList(9, 3, 10, 6, 55, 9, 7, 3, 3, 27, 15, 4, 4, 21, 11, 7, 6, 8, 9, 4, 10, 12, 17, 10, 6, 11, 3, 5, 5, 4, 15, 5, 31, 15, 3, 20, 7, 7, 21, 4, 8, 3, 11, 34, 5, 3, 13, 11, 5, 10, 3);
+
     public static void main(String[] args) {
-        System.out.println(new Knapsack01(Arrays.asList(3, 2, 1, 8), Arrays.asList(1, 1, 1, 4)).maxValueForLimit(3));
+        System.out.println(new Knapsack01(new ArrayList<Integer>(votes), new ArrayList<Integer>(votes)).maxValueForLimit(239));
     }
 }

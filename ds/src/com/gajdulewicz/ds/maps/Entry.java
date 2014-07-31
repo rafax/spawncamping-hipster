@@ -5,11 +5,11 @@ import java.util.Map;
 /**
 * Created by rafal on 22/07/2014.
 */
-class MyEntry<K, V> implements Map.Entry<K, V> {
+class Entry<K, V> implements Map.Entry<K, V> {
     private  K key;
     private  V value;
 
-    public MyEntry(K key, V value) {
+    public Entry(K key, V value) {
         this.key = key;
         this.value = value;
     }

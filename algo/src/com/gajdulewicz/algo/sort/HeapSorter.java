@@ -40,7 +40,7 @@ public class HeapSorter<T extends Comparable> implements Sorter<T> {
             heap.add(elem);
         }
         for (int i = 0; i < input.size(); i++) {
-            result.add(heap.min());
+            result.add(heap.removeMin());
         }
         return result;
     }

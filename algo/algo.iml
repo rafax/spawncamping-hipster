@@ -19,6 +19,7 @@
       </library>
     </orderEntry>
     <orderEntry type="module" module-name="ds" />
+    <orderEntry type="module" module-name="problems" />
   </component>
 </module>
 

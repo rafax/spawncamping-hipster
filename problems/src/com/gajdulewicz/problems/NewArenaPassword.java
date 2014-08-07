@@ -15,15 +15,10 @@ public class NewArenaPassword {
         for (int i = 0; i < n - K && i < K; i++) {
             int[] counts = new int[26];
             int t = 0;
-            // The cells that must be equal:
             for (int j = i; j < n; j += n - K) {
-                // Count the number of times each character happens
                 counts[oldPassword.charAt(j) - 'a']++;
                 t++;
             }
-            // If we pick the character that appears the most times
-            // Then we need t - (count of the character) to convert the other
-            // positions to it.
             res += t - maxElem(counts);
         }
         return res;

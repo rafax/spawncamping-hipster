@@ -6,7 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.BitSet;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,22 +15,66 @@ import java.util.stream.Collectors;
 public class ChargingChaos {
 
     public static int minFlippedSwitches(int l, List<BitSet> outlets, List<BitSet> devices) {
-        Collections.sort(devices, (x, y) -> x.toString().compareTo(y.toString()));
-        for (int i = 0; i < Math.pow(2, l); i++) {
-            String flipped = toBinaryStringOfLength(i, l);
-            List<BitSet> outletsCp = outlets.stream().map(x -> copyOf(x)).collect(Collectors.toList());
-            for (int j = 0; j < flipped.length(); j++) {
-                if (flipped.charAt(j) == '1') {
-                    for (BitSet bitSet : outletsCp) {
-                        bitSet.flip(j);
-                    }
+
+        int minFlipped = Integer.MAX_VALUE;
+        for (BitSet outlet : outlets) {
+            BitSet device = devices.get(0);
+            String flipped = flipString(outlet, device, l);
+            List<BitSet> outletsFlipped = flipBits(outlets, flipped);
+            if (match(outletsFlipped, devices)) {
+                int nOfOnes = numberOfOnes(flipped);
+                if (nOfOnes < minFlipped) {
+                    minFlipped = nOfOnes;
                 }
             }
-            Collections.sort(outletsCp, (x, y) -> x.toString().compareTo(y.toString()));
-            System.out.println(outletsCp + " to power " + devices + " according to " + flipped);
-
         }
-        return -1;
+        return minFlipped == Integer.MAX_VALUE ? -1 : minFlipped;
+    }
+
+    private static String flipString(BitSet outlet, BitSet device, int l) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < l; i++) {
+            sb.append(outlet.get(i) == device.get(i) ? "0" : "1");
+        }
+        return sb.toString();
+    }
+
+    private static boolean match(List<BitSet> outletsFlipped, List<BitSet> devices) {
+        for (BitSet device : devices) {
+            boolean matched = false;
+            for (BitSet outlet : outletsFlipped) {
+                if (outlet.equals(device)) {
+                    matched = true;
+                    break;
+                }
+            }
+            if (!matched) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static int numberOfOnes(String flipped) {
+        int sum = 0;
+        for (int i = 0; i < flipped.length(); i++) {
+            if (flipped.charAt(i) == '1') {
+                sum++;
+            }
+        }
+        return sum;
+    }
+
+    private static List<BitSet> flipBits(List<BitSet> outlets, String flipped) {
+        List<BitSet> outletsCp = outlets.stream().map(x -> copyOf(x)).collect(Collectors.toList());
+        for (int j = 0; j < flipped.length(); j++) {
+            if (flipped.charAt(j) == '1') {
+                for (BitSet bitSet : outletsCp) {
+                    bitSet.flip(j);
+                }
+            }
+        }
+        return outletsCp;
     }
 
     private static BitSet copyOf(BitSet x) {
@@ -64,12 +107,12 @@ public class ChargingChaos {
         try (BufferedReader br = Files.newBufferedReader(Paths.get(args[0]))) {
             int testCases = Integer.parseInt(br.readLine());
             for (int i = 0; i < testCases; i++) {
-                br.readLine();
+                int l = Integer.parseInt(br.readLine().split(" ")[1]);
                 List<BitSet> outlets = Arrays.asList(br.readLine().split(" ")).stream().map(x -> toBitSet(x)).collect(Collectors.toList());
                 List<BitSet> devices = Arrays.asList(br.readLine().split(" ")).stream().map(x -> toBitSet(x)).collect(Collectors.toList());
-                System.out.println(String.format("Case #%s : %s", i + 1, ChargingChaos.minFlippedSwitches(outlets.get(0).length(), outlets, devices)));
+                int res = ChargingChaos.minFlippedSwitches(l, outlets, devices);
+                System.out.println(String.format("Case #%s: %s", i + 1, res == -1 ? "NOT POSSIBLE" : res));
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }

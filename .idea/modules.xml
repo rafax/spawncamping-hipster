@@ -5,8 +5,6 @@
       <module fileurl="file://$PROJECT_DIR$/algo/algo.iml" filepath="$PROJECT_DIR$/algo/algo.iml" />
       <module fileurl="file://$PROJECT_DIR$/ds/ds.iml" filepath="$PROJECT_DIR$/ds/ds.iml" />
       <module fileurl="file://$PROJECT_DIR$/problems/problems.iml" filepath="$PROJECT_DIR$/problems/problems.iml" />
-      <module fileurl="file://$PROJECT_DIR$/spawncamping-hipster.iml" filepath="$PROJECT_DIR$/spawncamping-hipster.iml" />
     </modules>
   </component>
 </project>
-

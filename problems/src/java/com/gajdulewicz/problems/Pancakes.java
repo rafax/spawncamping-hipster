@@ -1,14 +1,26 @@
 package com.gajdulewicz.problems;
 
-import java.util.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
-
+// https://code.google.com/codejam/contest/6254486/dashboard#s=p1
 public class Pancakes {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+        final List<String> lines = Files.readAllLines(
+                Paths.get("/Users/rafal/dev/spawncamping-hipster/problems/src/resources/B-large-practice.in")).stream().collect(Collectors.toList());
+        for (int i = 1; i < lines.size(); i++) {
+            PancakeStack p = parse(lines.get(i));
+            int moves = solve(p.copy(), 0);
+            System.out.println(String.format("Case #%s: %s", i, moves));
+        }
 
-        PancakeStack p = parse("--+-");
-        int moves = solve(p.copy(), 0);
-        System.out.println(p + " -> " + moves);
+//        PancakeStack p = parse("--+--");
+//        int moves = solve(p.copy(), 0);
+//        System.out.println(p + " : " + moves);
     }
 
     private static int solve(PancakeStack bs, int moves) {
@@ -20,7 +32,7 @@ public class Pancakes {
             return solve(bs, moves);
         } else {
             if (bs.get(0)) {
-                bs.flip(1);
+                bs.flip(bs.leftPlusCount());
                 return solve(bs, moves + 1);
             } else {
                 bs.flip();
@@ -86,6 +98,15 @@ public class Pancakes {
 
         public void flip() {
             flip(length());
+        }
+
+        public int leftPlusCount() {
+            for (int i = 0; i < data.size(); i++) {
+                if (!data.get(i)) {
+                    return i;
+                }
+            }
+            return data.size();
         }
     }
 }

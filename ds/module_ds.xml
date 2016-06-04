@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_ds" default="compile.module.ds">
+  <dirname property="module.ds.basedir" file="${ant.file.module_ds}"/>
+  
+  <property name="module.jdk.home.ds" value="${jdk.home.1.8}"/>
+  <property name="module.jdk.bin.ds" value="${jdk.bin.1.8}"/>
+  <property name="module.jdk.classpath.ds" value="jdk.classpath.1.8"/>
+  
+  <property name="compiler.args.ds" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="ds.output.dir" value="${module.ds.basedir}/../out/production/ds"/>
+  <property name="ds.testoutput.dir" value="${module.ds.basedir}/../out/test/ds"/>
+  
+  <path id="ds.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="ds.module.production.classpath">
+    <path refid="${module.jdk.classpath.ds}"/>
+    <pathelement location="${idea.home}/lib/hamcrest-core-1.3.jar"/>
+    <pathelement location="${idea.home}/lib/hamcrest-library-1.3.jar"/>
+    <pathelement location="${idea.home}/lib/junit-4.11.jar"/>
+    <pathelement location="${idea.home}/lib/hamcrest-core-1.3.jar"/>
+    <pathelement location="${idea.home}/lib/junit-4.12.jar"/>
+  </path>
+  
+  <path id="ds.runtime.production.module.classpath">
+    <pathelement location="${ds.output.dir}"/>
+    <pathelement location="${idea.home}/lib/hamcrest-core-1.3.jar"/>
+    <pathelement location="${idea.home}/lib/hamcrest-library-1.3.jar"/>
+    <pathelement location="${idea.home}/lib/junit-4.11.jar"/>
+    <pathelement location="${idea.home}/lib/hamcrest-core-1.3.jar"/>
+    <pathelement location="${idea.home}/lib/junit-4.12.jar"/>
+  </path>
+  
+  <path id="ds.module.classpath">
+    <path refid="${module.jdk.classpath.ds}"/>
+    <pathelement location="${ds.output.dir}"/>
+    <pathelement location="${idea.home}/lib/hamcrest-core-1.3.jar"/>
+    <pathelement location="${idea.home}/lib/hamcrest-library-1.3.jar"/>
+    <pathelement location="${idea.home}/lib/junit-4.11.jar"/>
+    <pathelement location="${idea.home}/lib/hamcrest-core-1.3.jar"/>
+    <pathelement location="${idea.home}/lib/junit-4.12.jar"/>
+  </path>
+  
+  <path id="ds.runtime.module.classpath">
+    <pathelement location="${ds.testoutput.dir}"/>
+    <pathelement location="${ds.output.dir}"/>
+    <pathelement location="${idea.home}/lib/hamcrest-core-1.3.jar"/>
+    <pathelement location="${idea.home}/lib/hamcrest-library-1.3.jar"/>
+    <pathelement location="${idea.home}/lib/junit-4.11.jar"/>
+    <pathelement location="${idea.home}/lib/hamcrest-core-1.3.jar"/>
+    <pathelement location="${idea.home}/lib/junit-4.12.jar"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.ds">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.ds">
+    <patternset refid="excluded.from.module.ds"/>
+  </patternset>
+  
+  <path id="ds.module.sourcepath">
+    <dirset dir="${module.ds.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.ds" depends="compile.module.ds.production,compile.module.ds.tests" description="Compile module ds"/>
+  
+  <target name="compile.module.ds.production" depends="register.custom.compilers" description="Compile module ds; production classes">
+    <mkdir dir="${ds.output.dir}"/>
+    <javac2 destdir="${ds.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.ds}/javac">
+      <compilerarg line="${compiler.args.ds}"/>
+      <bootclasspath refid="ds.module.bootclasspath"/>
+      <classpath refid="ds.module.production.classpath"/>
+      <src refid="ds.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.ds"/>
+    </javac2>
+    
+    <copy todir="${ds.output.dir}">
+      <fileset dir="${module.ds.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.ds.tests" depends="register.custom.compilers,compile.module.ds.production" description="compile module ds; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.ds" description="cleanup module">
+    <delete dir="${ds.output.dir}"/>
+    <delete dir="${ds.testoutput.dir}"/>
+  </target>
+</project>

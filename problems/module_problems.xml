@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_problems" default="compile.module.problems">
+  <dirname property="module.problems.basedir" file="${ant.file.module_problems}"/>
+  
+  <property name="module.jdk.home.problems" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.problems" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.problems" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.problems" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="problems.output.dir" value="${module.problems.basedir}/../out/production/problems"/>
+  <property name="problems.testoutput.dir" value="${module.problems.basedir}/../out/test/problems"/>
+  
+  <path id="problems.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="problems.module.production.classpath">
+    <path refid="${module.jdk.classpath.problems}"/>
+    <pathelement location="${idea.home}/lib/hamcrest-core-1.3.jar"/>
+    <pathelement location="${idea.home}/lib/hamcrest-library-1.3.jar"/>
+    <pathelement location="${idea.home}/lib/junit-4.11.jar"/>
+    <pathelement location="${ds.output.dir}"/>
+    <pathelement location="${idea.home}/lib/hamcrest-core-1.3.jar"/>
+    <pathelement location="${idea.home}/lib/junit-4.12.jar"/>
+  </path>
+  
+  <path id="problems.runtime.production.module.classpath">
+    <pathelement location="${problems.output.dir}"/>
+    <pathelement location="${idea.home}/lib/hamcrest-core-1.3.jar"/>
+    <pathelement location="${idea.home}/lib/hamcrest-library-1.3.jar"/>
+    <pathelement location="${idea.home}/lib/junit-4.11.jar"/>
+    <path refid="ds.runtime.production.module.classpath"/>
+    <pathelement location="${idea.home}/lib/hamcrest-core-1.3.jar"/>
+    <pathelement location="${idea.home}/lib/junit-4.12.jar"/>
+  </path>
+  
+  <path id="problems.module.classpath">
+    <path refid="${module.jdk.classpath.problems}"/>
+    <pathelement location="${problems.output.dir}"/>
+    <pathelement location="${idea.home}/lib/hamcrest-core-1.3.jar"/>
+    <pathelement location="${idea.home}/lib/hamcrest-library-1.3.jar"/>
+    <pathelement location="${idea.home}/lib/junit-4.11.jar"/>
+    <pathelement location="${ds.testoutput.dir}"/>
+    <pathelement location="${ds.output.dir}"/>
+    <pathelement location="${idea.home}/lib/hamcrest-core-1.3.jar"/>
+    <pathelement location="${idea.home}/lib/junit-4.12.jar"/>
+  </path>
+  
+  <path id="problems.runtime.module.classpath">
+    <pathelement location="${problems.testoutput.dir}"/>
+    <pathelement location="${problems.output.dir}"/>
+    <pathelement location="${idea.home}/lib/hamcrest-core-1.3.jar"/>
+    <pathelement location="${idea.home}/lib/hamcrest-library-1.3.jar"/>
+    <pathelement location="${idea.home}/lib/junit-4.11.jar"/>
+    <path refid="ds.runtime.module.classpath"/>
+    <pathelement location="${idea.home}/lib/hamcrest-core-1.3.jar"/>
+    <pathelement location="${idea.home}/lib/junit-4.12.jar"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.problems">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.problems">
+    <patternset refid="excluded.from.module.problems"/>
+  </patternset>
+  
+  <path id="problems.module.sourcepath">
+    <dirset dir="${module.problems.basedir}">
+      <include name="src/resources"/>
+      <include name="src/java"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.problems" depends="compile.module.problems.production,compile.module.problems.tests" description="Compile module problems"/>
+  
+  <target name="compile.module.problems.production" depends="register.custom.compilers,compile.module.ds" description="Compile module problems; production classes">
+    <mkdir dir="${problems.output.dir}"/>
+    <javac2 destdir="${problems.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.problems}/javac">
+      <compilerarg line="${compiler.args.problems}"/>
+      <bootclasspath refid="problems.module.bootclasspath"/>
+      <classpath refid="problems.module.production.classpath"/>
+      <src refid="problems.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.problems"/>
+    </javac2>
+    
+    <copy todir="${problems.output.dir}">
+      <fileset dir="${module.problems.basedir}/src/resources">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.problems.basedir}/src/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.problems.tests" depends="register.custom.compilers,compile.module.problems.production" description="compile module problems; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.problems" description="cleanup module">
+    <delete dir="${problems.output.dir}"/>
+    <delete dir="${problems.testoutput.dir}"/>
+  </target>
+</project>

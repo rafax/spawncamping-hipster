@@ -1,6 +1,4 @@
-package com.gajdulewicz.algo.sort;
-
-import com.gajdulewicz.problems.Timer;
+package com.gajdulewicz.spawncamping.hipster.algo.sort;
 
 import java.util.*;
 
@@ -62,17 +60,17 @@ public class QuickSorter<T extends Comparable> implements Sorter<T> {
         for (int i = 0; i < 10; i++) {
 
 
-            try (Timer t = new Timer("Collections")) {
+            try (com.gajdulewicz.spawncamping.hipster.problems.Timer t = new com.gajdulewicz.spawncamping.hipster.problems.Timer("Collections")) {
                 cs = new ArrayList<>(list);
                 Collections.sort(cs);
             }
-            try (Timer t = new Timer("Quick")) {
+            try (com.gajdulewicz.spawncamping.hipster.problems.Timer t = new com.gajdulewicz.spawncamping.hipster.problems.Timer("Quick")) {
                 qs = new QuickSorter<Integer>().sort(new ArrayList<Integer>(list));
             }
-            try (Timer t = new Timer("Merge")) {
+            try (com.gajdulewicz.spawncamping.hipster.problems.Timer t = new com.gajdulewicz.spawncamping.hipster.problems.Timer("Merge")) {
                 ms = new MergeSorter<Integer>().sort(new ArrayList<>(list));
             }
-            try (Timer t = new Timer("Heap")) {
+            try (com.gajdulewicz.spawncamping.hipster.problems.Timer t = new com.gajdulewicz.spawncamping.hipster.problems.Timer("Heap")) {
                 hs = new HeapSorter<Integer>().sort(new ArrayList<>(list));
             }
         }

@@ -27,7 +27,7 @@ public class ExternalSorter {
 
     public static void main(String[] args) throws IOException {
         long start = System.currentTimeMillis();
-        new ExternalSorter(1000000).sort("/Users/rafal/dev/spawncamping-hipster/problems/src/com/gajdulewicz/problems/externalsort/input.txt", "output.txt");
+        new ExternalSorter(100000000).sort("/Users/gajduler/priv/dev/spawncamping-hipster/problems/src/main/resources/input.txt", "output.txt");
         long end = System.currentTimeMillis();
         System.out.println("Sorted in " + (end - start) + " ms");
     }

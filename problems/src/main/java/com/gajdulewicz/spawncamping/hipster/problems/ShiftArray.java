@@ -1,4 +1,4 @@
-package com.gajdulewicz.problems;
+package com.gajdulewicz.spawncamping.hipster.problems;
 
 import java.util.Arrays;
 import java.util.stream.IntStream;

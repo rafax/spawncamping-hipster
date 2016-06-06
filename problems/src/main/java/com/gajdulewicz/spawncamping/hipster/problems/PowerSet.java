@@ -3,9 +3,6 @@ package com.gajdulewicz.spawncamping.hipster.problems;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by rafal on 01/08/14.
- */
 public class PowerSet {
     static List<List<Integer>> powerSet(int[] set) {
 
@@ -24,7 +21,6 @@ public class PowerSet {
     }
 
     public static void main(String[] args) {
-        System.out.println(PowerSet.powerSet(new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).size()
-        );
+        System.out.println(PowerSet.powerSet(new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).size());
     }
 }

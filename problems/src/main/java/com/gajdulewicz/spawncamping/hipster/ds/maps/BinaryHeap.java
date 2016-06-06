@@ -101,7 +101,7 @@ public class BinaryHeap<T> {
     public boolean isValid() {
         for (int i = 0; i < nextPos; i++) {
             int leftInd = leftChildIndex(i), rightInd = rightChildIndex(i);
-            if (leftInd < nextPos ? comparator.compare(data[i], data[leftInd]) > 0 : false || rightInd < nextPos ? comparator.compare(data[i], data[rightInd]) > 0 : false) {
+            if (leftInd < nextPos ? comparator.compare(data[i], data[leftInd]) > 0 : rightInd < nextPos && comparator.compare(data[i], data[rightInd]) > 0) {
                 return false;
             }
         }

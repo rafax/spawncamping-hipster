@@ -23,7 +23,7 @@ public class HanoiTowers {
 
     public static void main(String[] args) {
         Stack<Integer> s1 = new Stack<>(), s2 = new Stack<>(), s3 = new Stack<>();
-        for (int i = 0; i < 3; i++) {
+        for (int i = 10; i >= 0; i--) {
             s1.push(i);
         }
         moveToTower3(s1, s2, s3);
